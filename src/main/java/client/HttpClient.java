@@ -3,7 +3,6 @@ package client;
 import io.restassured.http.Method;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import models.BaseModel;
 import models.genre.Genre;
 import utils.EnvConfig;
 import utils.PropertiesReader;

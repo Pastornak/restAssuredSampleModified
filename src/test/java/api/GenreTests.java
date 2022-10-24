@@ -7,14 +7,15 @@ import models.genre.Genre;
 import org.testng.annotations.Test;
 import service.GenreService;
 import utils.ResponseToModel;
+import utils.Validator;
 
 import java.util.List;
 
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.apache.http.HttpStatus.SC_OK;
 
-public class GenreTests extends BaseApiTest {
-
+public class GenreTests {
+    public Validator validator = new Validator();
     @Test (description = "Positive check for creation a genre")
     public void verifyPostCreateGenre () {
         String testName = "test6";
