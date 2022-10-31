@@ -28,4 +28,15 @@ public class GenreService {
         String endpoint = new EndpointBuilder().pathParameter("genre").pathParameter(genreId).build();
         return HttpClient.delete(endpoint);
     }
+
+    public Response getGenreById(QueryOptions options, Integer id) {
+        EndpointBuilder endpoint = new EndpointBuilder().pathParameter("genre").pathParameter(id);
+        if (options.orderType != null) endpoint.queryParam("orderType", options.orderType);
+        endpoint
+                .queryParam("page", options.page)
+                .queryParam("pagination", options.pagination)
+                .queryParam("size", options.size);
+        if (options.sortBy != null) endpoint.queryParam("sortBy", options.sortBy);
+        return HttpClient.get(endpoint.build());
+    }
 }

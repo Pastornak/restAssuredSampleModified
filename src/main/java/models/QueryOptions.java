@@ -22,4 +22,10 @@ public class QueryOptions {
         this.pagination = true;
         this.size = 10;
     }
+
+    public QueryOptions(int page, boolean pagination, int size) {
+        this.page = page;
+        this.pagination = pagination;
+        this.size = size;
+    }
 }
