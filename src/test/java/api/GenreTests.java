@@ -8,52 +8,61 @@ import org.testng.annotations.Test;
 import service.GenreService;
 import utils.ResponseToModel;
 import utils.Validator;
+import validator.GenreValidator;
+import validator.ResponseValidator;
 
 import static org.apache.http.HttpStatus.*;
 
 public class GenreTests {
-    public Validator validator = new Validator();
     private final GenreService genreService = new GenreService();
-    private final ResponseToModel responseToModel = new ResponseToModel();
 
     @Test (description = "Positive check for creation a genre")
     public void verifyPostCreateGenre () {
         String testName = "test6";
-        Response responseCreateEntity = genreService.createGenre(Genre.builder().name(testName).build());
-        Genre response = responseToModel.getAsGenreClass(responseCreateEntity);
-        validator
-                .validateStatusCode(responseCreateEntity.getStatusCode(),SC_CREATED)
-                .validateGenreName(response.name, testName);
-
-        genreService.deleteGenre(response.genreId);
+        // create test data + expected result
+        Genre genre = Genre.builder().name(testName).build();
+        // send request to create genre
+        Response response = genreService.createGenre(genre);
+        // validate status code
+        new ResponseValidator(response).statusCode(SC_CREATED);
+        // validate genre was created properly based on input data
+        new GenreValidator(response).genreName(genre.name);
+        // retrieve genre model from response to have genreId
+        genre = new ResponseToModel().getAsGenreClass(response);
+        // check genre was properly saved by the API through GET
+        Response responseGetGenre = genreService.getGenreById(genre.genreId);
+        new ResponseValidator(responseGetGenre).statusCode(SC_OK);
+        new GenreValidator(responseGetGenre).genreIs(genre);
+        // delete created genre to cleanup after test
+        genreService.deleteGenre(genre.genreId);
     }
 
     @Test (description = "Positive check for search genres")
     public void verifyGetSearchGenres () {
         int expectedSize = 2;
         Response response = genreService.getGenres(new QueryOptions(1, true, expectedSize));
-        validator
-                .validateStatusCode(response.getStatusCode(), SC_OK)
-                .validateGenresCount(responseToModel.getAsGenreClassArray(response), expectedSize);
+        new ResponseValidator(response).statusCode(SC_OK);
+        new GenreValidator(response).genresCount(expectedSize);
     }
 
     @Test (description = "Negative check for creation a genre")
     public void verifyPostErrorCreateGenre () {
-        Response responseCreateEntity = genreService.createGenre(Genre.builder().build());
-        validator
-                .validateStatusCode(responseCreateEntity.getStatusCode(), SC_BAD_REQUEST);
+        Response response = genreService.createGenre(Genre.builder().build());
+        new ResponseValidator(response).statusCode(SC_BAD_REQUEST).errorMessage("Value 'name' is required!");
     }
 
     @Test (description = "Positive check for delete genre")
     public void verifyDeleteGenre () {
-        Response responseCreateEntity = genreService.createGenre(Genre.builder().name("testName").build());
-        Genre response = responseToModel.getAsGenreClass(responseCreateEntity);
-        Integer genreId = response.genreId;
-        genreService
-                .deleteGenre(response.genreId);
+        Genre genre = Genre.builder().name("testName").build();
+        Response responseCreateEntity = genreService.createGenre(genre);
+        new ResponseValidator(responseCreateEntity).statusCode(SC_CREATED);
+        genre = new ResponseToModel().getAsGenreClass(responseCreateEntity);
 
-        Response responseCheckEntity = genreService.getGenreById(new QueryOptions(), genreId);
-        validator
-                .validateStatusCode(responseCheckEntity.getStatusCode(), SC_NOT_FOUND);
+        Integer genreId = genre.genreId;
+        Response responseDeleteEntity = genreService.deleteGenre(genreId);
+        new ResponseValidator(responseDeleteEntity).statusCode(SC_NO_CONTENT);
+
+        Response responseCheckEntity = genreService.getGenreById(genreId);
+        new ResponseValidator(responseCheckEntity).statusCode(SC_NOT_FOUND).errorMessage(String.format("Genre with 'genreId' = '%s' doesn't exist!", genreId));
     }
 }

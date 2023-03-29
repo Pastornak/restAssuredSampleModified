@@ -1,14 +1,13 @@
 package models.genre;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @Builder
 @Setter
 @Getter
+@EqualsAndHashCode
+@ToString
 public class Genre {
     public Integer genreId;
     public String name;
