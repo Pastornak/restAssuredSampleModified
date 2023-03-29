@@ -7,7 +7,6 @@ import models.genre.Genre;
 import org.testng.annotations.Test;
 import service.GenreService;
 import utils.ResponseToModel;
-import utils.Validator;
 import validator.GenreValidator;
 import validator.ResponseValidator;
 
